@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offgrid Gaming | Instant. Offline. Play.</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0b0a10;
+            --bg-card: #161220;
+            --bg-card-hover: #1f1a2e;
+            --accent-orange: #ff6a00;
+            --accent-purple: #9d4edd;
+            --accent-purple-glow: #7b2cbf;
+            --accent-purple-light: #c77dff;
+            --accent-green: #00e676;
+            --accent-blue: #00b4d8;
+            --accent-yellow: #ffd166;
+            --accent-red: #ff3366;
+            --border-color: #2e2440;
+            --text-main: #f3effa;
+            --text-muted: #9a8cae;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(157, 78, 221, 0.18) 0%, transparent 60%),
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 220px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 15px 10px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(180deg, rgba(11,10,16,0.95) 0%, rgba(11,10,16,0.85) 100%);
+        }
+
+        .site-logo {
+            max-width: 160px;
+            height: auto;
+            margin-bottom: 5px;
+            filter: drop-shadow(0 0 18px rgba(157, 78, 221, 0.5));
+        }
+
+        /* --- CONTROL PANEL --- */
+        .controls {
+            max-width: 1100px;
+            margin: 15px auto 10px;
+            padding: 0 15px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* FILTER & SORT ROW */
+        .filter-sort-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 14px 10px 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.35);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .sort-dropdown {
+            padding: 10px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 0.8rem;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sort-dropdown:focus {
+            border-color: var(--accent-purple);
+        }
+
+        .genre-chips {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        .genre-chips::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chip {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .chip:hover, .chip.active {
+            background: rgba(157, 78, 221, 0.2);
+            color: var(--accent-purple-light);
+            border-color: var(--accent-purple);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 5px 15px 20px;
+            flex: 1;
+            width: 100%;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        @media (min-width: 768px) {
+            .game-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 20px;
+            }
+        }
+
+        .game-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .game-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-orange);
+            box-shadow: 0 4px 15px rgba(255, 106, 0, 0.25);
+        }
+
+        .game-card.selected {
+            border: 2px solid var(--accent-orange);
+            box-shadow: 0 0 15px rgba(255, 106, 0, 0.45);
+            background: var(--bg-card-hover);
+        }
+
+        .game-card.tetris-highlight {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--accent-purple-light) !important;
+            box-shadow: 0 0 20px rgba(199, 125, 255, 0.8) !important;
+        }
+
+        .card-img-wrapper {
+            position: relative;
+            width: 100%;
+            height: 120px;
+        }
+
+        @media (min-width: 768px) {
+            .card-img-wrapper {
+                height: 200px;
+            }
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background-color: #0b0a10;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-content {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        @media (min-width: 768px) {
+            .card-content {
+                padding: 15px;
+            }
+        }
+
+        .game-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @media (min-width: 768px) {
+            .game-title {
+                font-size: 1.05rem;
+                margin-bottom: 5px;
+            }
+        }
+
+        .game-meta {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media (min-width: 768px) {
+            .game-meta {
+                font-size: 0.8rem;
+                margin-bottom: 12px;
+            }
+        }
+
+        .card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: auto;
+        }
+
+        .btn-play {
+            width: 100%;
+            padding: 8px 4px;
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-orange) 100%);
+            color: #fff;
+            font-weight: bold;
+            font-size: 0.7rem;
+            border-radius: 5px;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        @media (min-width: 768px) {
+            .btn-play {
+                padding: 10px;
+                font-size: 0.85rem;
+                border-radius: 6px;
+            }
+        }
+
+        .game-card.selected .btn-play {
+            background: #231b33;
+            color: var(--accent-orange);
+            border: 1px solid var(--accent-orange);
+        }
+
+        .btn-reqs {
+            width: 100%;
+            padding: 6px 4px;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            text-transform: uppercase;
+        }
+
+        @media (min-width: 768px) {
+            .btn-reqs {
+                padding: 8px;
+                font-size: 0.75rem;
+                border-radius: 6px;
+                gap: 6px;
+            }
+        }
+
+        .btn-reqs:hover {
+            background: rgba(157, 78, 221, 0.15);
+            color: var(--accent-purple-light);
+            border-color: var(--accent-purple);
+        }
+
+        /* --- FLOATING WINDOW SYSTEM REQUIREMENTS --- */
+        .modal-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            background: var(--bg-card);
+            border: 1px solid var(--accent-purple);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 25px rgba(157, 78, 221, 0.25);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 440px;
+            padding: 22px;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-container.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-title i {
+            color: var(--accent-orange);
+        }
+
+        .btn-close-modal {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-close-modal:hover {
+            color: #fff;
+            border-color: var(--accent-orange);
+            background: var(--accent-orange);
+        }
+
+        .reqs-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .req-card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: rgba(11, 10, 16, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .req-card-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-purple-light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .req-card-value {
+            font-size: 0.85rem;
+            color: #fff;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* --- SIDEBAR / DRAWER --- */
+        .cart-widget {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            left: 10px;
+            max-width: none;
+            background: var(--bg-card);
+            border: 1px solid var(--accent-purple);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85), 0 0 20px rgba(157, 78, 221, 0.2);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            .cart-widget {
+                left: auto;
+                bottom: 20px;
+                right: 20px;
+                width: 400px;
+                max-width: calc(100vw - 40px);
+            }
+        }
+
+        .cart-widget.collapsed .cart-collapsible-content {
+            display: none;
+        }
+
+        .cart-header {
+            background: rgba(157, 78, 221, 0.15);
+            padding: 10px 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--accent-purple-light);
+        }
+
+        @media (min-width: 768px) {
+            .cart-header {
+                padding: 12px 15px;
+                font-size: 0.95rem;
+            }
+        }
+
+        .cart-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cart-toggle-btn {
+            background: none;
+            border: none;
+            color: var(--accent-purple-light);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 2px 6px;
+            transition: transform 0.2s;
+        }
+
+        .cart-widget.collapsed .cart-toggle-btn i {
+            transform: rotate(180deg);
+        }
+
+        .btn-clear-all {
+            background: rgba(255, 51, 102, 0.15);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-clear-all:hover {
+            background: var(--accent-red);
+            color: #fff;
+        }
+
+        .cart-collapsible-content {
+            display: flex;
+            flex-direction: column;
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+
+        .cart-items {
+            list-style: none;
+            padding: 8px 10px;
+            overflow-y: auto;
+            max-height: 120px;
+            flex: 1;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            margin-bottom: 4px;
+            font-size: 0.8rem;
+        }
+
+        .cart-item-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .cart-item-title i {
+            color: var(--accent-orange);
+            font-size: 0.75rem;
+        }
+
+        .cart-item-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-remove-item {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: color 0.2s ease;
+        }
+
+        .btn-remove-item:hover {
+            color: var(--accent-red);
+        }
+
+        .hdd-storage-section {
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .hdd-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .target-drive-select {
+            background: rgba(11, 10, 16, 0.8);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            outline: none;
+        }
+
+        .tetris-bar-bg {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 5px;
+            overflow: hidden;
+            display: flex;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
+        .tetris-block {
+            height: 100%;
+            transition: width 0.3s ease, filter 0.2s ease;
+            position: relative;
+            cursor: pointer;
+            border-right: 1px solid rgba(11, 10, 16, 0.5);
+        }
+
+        .tetris-overflow {
+            background: var(--accent-red) !important;
+            box-shadow: 0 0 10px var(--accent-red);
+        }
+
+        .storage-advice-box {
+            font-size: 0.7rem;
+            color: var(--accent-purple-light);
+            background: rgba(157, 78, 221, 0.1);
+            border: 1px rgba(157, 78, 221, 0.3) solid;
+            padding: 5px 8px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1.2;
+        }
+
+        .storage-advice-box i {
+            color: var(--accent-yellow);
+        }
+
+        .hdd-info-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hdd-icon {
+            color: var(--accent-orange);
+            font-size: 0.8rem;
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; filter: drop-shadow(0 0 5px var(--accent-orange)); }
+        }
+
+        .hdd-val-highlight {
+            color: var(--accent-orange);
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .cart-footer {
+            padding: 10px 12px;
+            background: var(--bg-dark);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-copy-drawer {
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-orange) 100%);
+            color: #fff;
+            border: none;
+            padding: 9px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .btn-copy-drawer:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: var(--border-color);
+        }
+
+        .empty-msg {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: rgba(22, 18, 32, 0.95);
+            border: 1px solid var(--accent-purple);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            padding: 8px 14px;
+            color: #fff;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: slideIn 0.3s ease, fadeOut 0.3s 2.2s ease forwards;
+        }
+
+        .toast i {
+            color: var(--accent-orange);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <header>
+        <img src="logo.png" alt="Offgrid Gaming Logo" class="site-logo">
+    </header>
+
+    <div class="controls">
+        <!-- SEARCH, SORT, & FILTER CHIPS -->
+        <div class="filter-sort-bar">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="Search games...">
+            </div>
+            <select class="sort-dropdown" id="sortSelect">
+                <option value="name-asc">Sort: A to Z</option>
+                <option value="size-asc">Sort: Size (Smallest)</option>
+                <option value="size-desc">Sort: Size (Largest)</option>
+            </select>
+        </div>
+
+        <div class="genre-chips" id="genreChips">
+            <button class="chip active" data-genre="all">All Games</button>
+            <button class="chip" data-genre="RPG">RPG</button>
+            <button class="chip" data-genre="Open World">Open World</button>
+            <button class="chip" data-genre="Souls-like">Souls-like</button>
+            <button class="chip" data-genre="Racing">Racing</button>
+            <button class="chip" data-genre="Sports">Sports</button>
+            <button class="chip" data-genre="Action-Adventure">Action-Adventure</button>
+            <button class="chip" data-genre="Strategy">Strategy</button>
+            <button class="chip" data-genre="Simulation">Simulation</button>
+        </div>
+    </div>
+
+    <main class="container">
+       <div class="game-grid" id="gameGrid">
+           <!-- Dynamic Game Cards load from games.html -->
+       </div>
+    </main>
+
+    <!-- Dynamic Cart loads from cart.html -->
+    <div id="cartContainer"></div>
+
+    <!-- SYSTEM REQUIREMENTS MODAL -->
+    <div class="modal-container" id="reqsModal">
+        <div class="modal-header">
+            <div class="modal-title" id="modalGameTitle"><i class="fa-solid fa-microchip"></i> System Requirements</div>
+            <button class="btn-close-modal" id="btnCloseModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="reqs-grid">
+            <div class="req-card-row">
+                <div class="req-card-label"><i class="fa-solid fa-memory"></i> RAM</div>
+                <div class="req-card-value" id="reqRAM">-</div>
+            </div>
+            <div class="req-card-row">
+                <div class="req-card-label"><i class="fa-solid fa-compact-disc"></i> VRAM</div>
+                <div class="req-card-value" id="reqVRAM">-</div>
+            </div>
+            <div class="req-card-row">
+                <div class="req-card-label"><i class="fa-solid fa-microchip"></i> CPU</div>
+                <div class="req-card-value" id="reqCPU">-</div>
+            </div>
+            <div class="req-card-row">
+                <div class="req-card-label"><i class="fa-solid fa-tv"></i> GPU</div>
+                <div class="req-card-value" id="reqGPU">-</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const HDDS = {
+            250: { nominal: 250, usableGB: 232.8 },
+            320: { nominal: 320, usableGB: 298.0 },
+            500: { nominal: 500, usableGB: 465.6 },
+            1000: { nominal: 1000, usableGB: 931.3 },
+            2000: { nominal: 2000, usableGB: 1862.6 }
+        };
+
+        const TETRIS_COLORS = ['#ff6a00', '#9d4edd', '#00e676', '#00b4d8', '#ffd166', '#c77dff'];
+        let selectedGamesMap = new Map();
+
+        async function loadModules() {
+            try {
+                const [gamesRes, cartRes] = await Promise.all([
+                    fetch('games.html'),
+                    fetch('cart.html')
+                ]);
+
+                if (gamesRes.ok) {
+                    document.getElementById('gameGrid').innerHTML = await gamesRes.text();
+                }
+                if (cartRes.ok) {
+                    document.getElementById('cartContainer').innerHTML = await cartRes.text();
+                }
+
+                initApp();
+            } catch (err) {
+                console.error("Error loading HTML modules:", err);
+            }
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            if(!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        function initApp() {
+            const gameGrid = document.getElementById('gameGrid');
+            const searchInput = document.getElementById('searchInput');
+            const sortSelect = document.getElementById('sortSelect');
+            const genreChips = document.getElementById('genreChips');
+            
+            const reqsModal = document.getElementById('reqsModal');
+            const btnCloseModal = document.getElementById('btnCloseModal');
+
+            const cartWidget = document.getElementById('cartWidget');
+            const btnToggleCart = document.getElementById('btnToggleCart');
+            const btnClearAll = document.getElementById('btnClearAll');
+            const btnCopyList = document.getElementById('btnCopyList');
+            const driveSelect = document.getElementById('driveSelect');
+
+            // Toggle / Reqs Events
+            gameGrid.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+
+                const card = btn.closest('.game-card');
+                const id = card.dataset.id;
+
+                if (btn.dataset.action === 'toggle') {
+                    toggleGameSelection(card);
+                } else if (btn.dataset.action === 'reqs') {
+                    openReqsModal(card);
+                }
+            });
+
+            if (btnCloseModal) {
+                btnCloseModal.addEventListener('click', () => reqsModal.classList.remove('active'));
+            }
+
+            if (btnToggleCart) {
+                btnToggleCart.addEventListener('click', () => cartWidget.classList.toggle('collapsed'));
+            }
+
+            if (btnClearAll) {
+                btnClearAll.addEventListener('click', () => {
+                    selectedGamesMap.clear();
+                    document.querySelectorAll('.game-card.selected').forEach(c => {
+                        c.classList.remove('selected');
+                        const btn = c.querySelector('.btn-play');
+                        btn.innerHTML = `<i class="fa-solid fa-plus"></i> Select Game`;
+                    });
+                    updateCartUI();
+                    showToast("Cleared selected list");
+                });
+            }
+
+            if (btnCopyList) {
+                btnCopyList.addEventListener('click', () => {
+                    if (selectedGamesMap.size === 0) return;
+                    let text = "Selected Games List:\n";
+                    let totalSize = 0;
+                    selectedGamesMap.forEach(g => {
+                        text += `- ${g.title} (${formatSizeDisplay(g.size)})\n`;
+                        totalSize += g.size;
+                    });
+                    text += `\nTotal Games: ${selectedGamesMap.size}\nTotal Size: ${totalSize.toFixed(2)} GB`;
+
+                    navigator.clipboard.writeText(text).then(() => {
+                        showToast("List copied to clipboard!");
+                    });
+                });
+            }
+
+            if (driveSelect) {
+                driveSelect.addEventListener('change', updateCartUI);
+            }
+
+            if (searchInput) searchInput.addEventListener('input', filterAndSortGames);
+            if (sortSelect) sortSelect.addEventListener('change', filterAndSortGames);
+            
+            if (genreChips) {
+                genreChips.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('chip')) {
+                        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                        e.target.classList.add('active');
+                        filterAndSortGames();
+                    }
+                });
+            }
+
+            filterAndSortGames();
+        }
+
+        function formatSizeDisplay(gb) {
+            if (gb < 1) {
+                return Math.round(gb * 1024) + " MB";
+            }
+            return gb.toFixed(2) + " GB";
+        }
+
+        function toggleGameSelection(card) {
+            const id = card.dataset.id;
+            const title = card.dataset.title;
+            const size = parseFloat(card.dataset.size);
+
+            if (selectedGamesMap.has(id)) {
+                selectedGamesMap.delete(id);
+                card.classList.remove('selected');
+                card.querySelector('.btn-play').innerHTML = `<i class="fa-solid fa-plus"></i> Select Game`;
+            } else {
+                selectedGamesMap.set(id, { id, title, size });
+                card.classList.add('selected');
+                card.querySelector('.btn-play').innerHTML = `<i class="fa-solid fa-check"></i> Selected`;
+            }
+
+            const cartWidget = document.getElementById('cartWidget');
+            if (cartWidget && cartWidget.classList.contains('collapsed')) {
+                cartWidget.classList.remove('collapsed');
+            }
+
+            updateCartUI();
+        }
+
+        function openReqsModal(card) {
+            document.getElementById('modalGameTitle').innerText = card.dataset.title;
+            
+            const ram = parseFloat(card.dataset.ram);
+            document.getElementById('reqRAM').innerText = ram < 1 ? Math.round(ram * 1024) + " MB" : ram + " GB";
+            
+            const vram = parseFloat(card.dataset.vram);
+            document.getElementById('reqVRAM').innerText = vram < 1 ? Math.round(vram * 1024) + " MB" : vram + " GB";
+
+            document.getElementById('reqCPU').innerText = card.dataset.cpu || "N/A";
+            document.getElementById('reqGPU').innerText = card.dataset.gpu || "N/A";
+
+            document.getElementById('reqsModal').classList.add('active');
+        }
+
+        function updateCartUI() {
+            const cartItems = document.getElementById('cartItems');
+            const cartCountTitle = document.getElementById('cartCountTitle');
+            const usedStorageVal = document.getElementById('usedStorageVal');
+            const totalStorageVal = document.getElementById('totalStorageVal');
+            const driveSelect = document.getElementById('driveSelect');
+            const tetrisBar = document.getElementById('tetrisBar');
+            const storageAdvice = document.getElementById('storageAdvice');
+            const btnCopyList = document.getElementById('btnCopyList');
+
+            if (!cartItems) return;
+
+            const targetHDDKey = driveSelect ? driveSelect.value : 250;
+            const driveData = HDDS[targetHDDKey];
+            const maxGB = driveData.usableGB;
+
+            totalStorageVal.innerText = maxGB.toFixed(1) + " GB";
+            cartCountTitle.innerText = `Selected Games (${selectedGamesMap.size})`;
+
+            if (selectedGamesMap.size === 0) {
+                cartItems.innerHTML = `<li class="empty-msg">No games selected yet</li>`;
+                usedStorageVal.innerText = "0.00 GB";
+                tetrisBar.innerHTML = "";
+                storageAdvice.innerText = "Select games to see storage distribution advice.";
+                btnCopyList.disabled = true;
+                return;
+            }
+
+            btnCopyList.disabled = false;
+            cartItems.innerHTML = "";
+            tetrisBar.innerHTML = "";
+
+            let usedGB = 0;
+            let index = 0;
+
+            selectedGamesMap.forEach((game, id) => {
+                usedGB += game.size;
+
+                const li = document.createElement('li');
+                li.className = 'cart-item';
+                li.innerHTML = `
+                    <span class="cart-item-title"><i class="fa-solid fa-gamepad"></i> ${game.title}</span>
+                    <div class="cart-item-right">
+                        <span>${formatSizeDisplay(game.size)}</span>
+                        <button class="btn-remove-item" data-id="${id}"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                `;
+
+                li.querySelector('.btn-remove-item').addEventListener('click', () => {
+                    const card = document.querySelector(`.game-card[data-id="${id}"]`);
+                    if (card) toggleGameSelection(card);
+                });
+
+                cartItems.appendChild(li);
+
+                const blockWidthPct = (game.size / maxGB) * 100;
+                const block = document.createElement('div');
+                block.className = 'tetris-block';
+                block.style.width = `${blockWidthPct}%`;
+                block.style.backgroundColor = TETRIS_COLORS[index % TETRIS_COLORS.length];
+                block.title = `${game.title}: ${formatSizeDisplay(game.size)}`;
+
+                block.addEventListener('mouseenter', () => {
+                    const card = document.querySelector(`.game-card[data-id="${id}"]`);
+                    if (card) card.classList.add('tetris-highlight');
+                });
+                block.addEventListener('mouseleave', () => {
+                    const card = document.querySelector(`.game-card[data-id="${id}"]`);
+                    if (card) card.classList.remove('tetris-highlight');
+                });
+
+                tetrisBar.appendChild(block);
+                index++;
+            });
+
+            usedStorageVal.innerText = formatSizeDisplay(usedGB);
+
+            if (usedGB > maxGB) {
+                const overflow = document.createElement('div');
+                overflow.className = 'tetris-block tetris-overflow';
+                overflow.style.width = `${((usedGB - maxGB) / maxGB) * 100}%`;
+                overflow.title = `Overflow: ${(usedGB - maxGB).toFixed(2)} GB`;
+                tetrisBar.appendChild(overflow);
+
+                storageAdvice.innerHTML = `<span style="color: var(--accent-red)"><i class="fa-solid fa-triangle-exclamation"></i> Drive Exceeded by ${(usedGB - maxGB).toFixed(2)} GB! Upgrade drive or remove games.</span>`;
+            } else {
+                const freeGB = maxGB - usedGB;
+                const freePct = ((freeGB / maxGB) * 100).toFixed(1);
+                storageAdvice.innerText = `Storage fits nicely! ${freeGB.toFixed(2)} GB (${freePct}%) free space remaining.`;
+            }
+        }
+
+        function filterAndSortGames() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const sortVal = document.getElementById('sortSelect').value;
+            const activeChip = document.querySelector('.chip.active');
+            const genreVal = activeChip ? activeChip.dataset.genre : 'all';
+
+            const cards = Array.from(document.querySelectorAll('.game-card'));
+
+            cards.forEach(card => {
+                const title = card.dataset.title.toLowerCase();
+                const genre = card.dataset.genre;
+
+                const matchesSearch = title.includes(searchVal);
+                const matchesGenre = (genreVal === 'all') || (genre.toLowerCase().includes(genreVal.toLowerCase()));
+
+                if (matchesSearch && matchesGenre) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            const grid = document.getElementById('gameGrid');
+            cards.sort((a, b) => {
+                if (sortVal === 'name-asc') {
+                    return a.dataset.title.localeCompare(b.dataset.title);
+                } else if (sortVal === 'size-asc') {
+                    return parseFloat(a.dataset.size) - parseFloat(b.dataset.size);
+                } else if (sortVal === 'size-desc') {
+                    return parseFloat(b.dataset.size) - parseFloat(a.dataset.size);
+                }
+            });
+
+            cards.forEach(card => grid.appendChild(card));
+        }
+
+        document.addEventListener('DOMContentLoaded', loadModules);
+    </script>
+</body>
+</html>
