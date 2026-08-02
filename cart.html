@@ -1,0 +1,44 @@
+<div class="cart-widget collapsed" id="cartWidget">
+    <div class="cart-header">
+        <span><i class="fa-solid fa-gamepad"></i> Selected Games</span>
+        <div class="cart-header-actions">
+            <button class="btn-clear-all" id="btnClearAll">Clear All</button>
+            <button class="cart-toggle-btn" id="btnToggleCart"><i class="fa-solid fa-chevron-down"></i></button>
+        </div>
+    </div>
+
+    <div class="cart-collapsible-content">
+        <ul class="cart-items" id="cartItems">
+            <li class="empty-msg">No games selected yet</li>
+        </ul>
+
+        <div class="hdd-storage-section">
+            <div class="hdd-label-row">
+                <div class="hdd-info-group">
+                    <i class="fa-solid fa-hard-drive hdd-icon"></i>
+                    <span>Storage: <span class="hdd-val-highlight" id="hddUsedVal">0 GB</span></span>
+                </div>
+                <select class="target-drive-select" id="driveSelect">
+                    <option value="64">64 GB Drive</option>
+                    <option value="128">128 GB Drive</option>
+                    <option value="256">256 GB Drive</option>
+                    <option value="512" selected>512 GB Drive</option>
+                    <option value="1024">1 TB Drive</option>
+                </select>
+            </div>
+
+            <div class="tetris-bar-bg" id="tetrisBar"></div>
+
+            <div class="storage-advice-box">
+                <i class="fa-solid fa-lightbulb"></i>
+                <span id="storageAdvice">Select games to analyze drive space efficiency.</span>
+            </div>
+        </div>
+
+        <div class="cart-footer">
+            <button class="btn-copy-drawer" id="btnCopyList" disabled>
+                <i class="fa-solid fa-copy"></i> Copy Selected List
+            </button>
+        </div>
+    </div>
+</div>
