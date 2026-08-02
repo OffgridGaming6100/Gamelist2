@@ -1,0 +1,49 @@
+<div class="cart-widget" id="cartWidget">
+    <div class="cart-header">
+        <span><i class="fa-solid fa-layer-group"></i> Selected Games (<span id="cartCount">0</span>)</span>
+        <div class="cart-header-actions">
+            <button class="btn-clear-all" id="btnClearAll"><i class="fa-solid fa-trash-can"></i> Clear</button>
+            <button class="cart-toggle-btn" id="cartToggleBtn"><i class="fa-solid fa-chevron-down"></i></button>
+        </div>
+    </div>
+
+    <div class="cart-collapsible-content">
+        <ul class="cart-items" id="cartItemsList">
+            <li class="empty-msg">No games selected yet</li>
+        </ul>
+
+        <div class="hdd-storage-section">
+            <div class="hdd-label-row">
+                <div class="hdd-info-group">
+                    <i class="fa-solid fa-hard-drive hdd-icon"></i>
+                    <span>Storage Fill Bar</span>
+                </div>
+                <div class="hdd-info-group">
+                    <label for="targetDriveSelect">Drive:</label>
+                    <select id="targetDriveSelect" class="target-drive-select">
+                        <option value="64">64 GB</option>
+                        <option value="128" selected>128 GB</option>
+                        <option value="256">256 GB</option>
+                        <option value="512">512 GB</option>
+                        <option value="1000">1 TB</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="tetris-bar-bg" id="tetrisBarBg">
+                <!-- Storage segments loaded via JavaScript -->
+            </div>
+
+            <div class="storage-advice-box" id="storageAdviceBox">
+                <i class="fa-solid fa-lightbulb"></i>
+                <span id="storageAdviceText">Select games to check storage usage.</span>
+            </div>
+        </div>
+
+        <div class="cart-footer">
+            <button class="btn-copy-drawer" id="btnCopyList" disabled>
+                <i class="fa-solid fa-copy"></i> Copy Selected Games List
+            </button>
+        </div>
+    </div>
+</div>
