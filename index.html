@@ -823,6 +823,284 @@
         }
 
         document.addEventListener('DOMContentLoaded', loadComponents);
-    </script>
+    <script>
+    // State Management
+    const selectedGames = new Map();
+
+    async function loadComponents() {
+        try {
+            const [gamesRes, cartRes] = await Promise.all([
+                fetch('games.html'),
+                fetch('cart.html')
+            ]);
+
+            if (gamesRes.ok) {
+                document.getElementById('gameGrid').innerHTML = await gamesRes.text();
+            }
+            if (cartRes.ok) {
+                document.getElementById('cartContainer').innerHTML = await cartRes.text();
+            }
+
+            // Initialize Event Listeners after elements are injected into DOM
+            initEventListeners();
+            initFilterAndSort();
+        } catch (err) {
+            console.error('Error loading modular HTML components:', err);
+        }
+    }
+
+    function initEventListeners() {
+        const gameGrid = document.getElementById('gameGrid');
+        const cartContainer = document.getElementById('cartContainer');
+
+        // Listen for button clicks inside game cards (Event Delegation)
+        if (gameGrid) {
+            gameGrid.addEventListener('click', (e) => {
+                const playBtn = e.target.closest('.btn-play');
+                const reqsBtn = e.target.closest('.btn-reqs');
+
+                if (playBtn) {
+                    const card = playBtn.closest('.game-card');
+                    toggleSelectGame(card);
+                } else if (reqsBtn) {
+                    const card = reqsBtn.closest('.game-card');
+                    showRequirementsModal(card);
+                }
+            });
+        }
+
+        // Cart Drawer Controls
+        if (cartContainer) {
+            cartContainer.addEventListener('click', (e) => {
+                if (e.target.closest('#btnToggleCart')) {
+                    document.getElementById('cartWidget').classList.toggle('collapsed');
+                } else if (e.target.closest('#btnClearAll')) {
+                    clearAllSelections();
+                } else if (e.target.closest('.btn-remove-item')) {
+                    const gameId = e.target.closest('.btn-remove-item').dataset.id;
+                    const card = document.querySelector(`.game-card[data-id="${gameId}"]`);
+                    if (card) toggleSelectGame(card);
+                } else if (e.target.closest('#btnCopyList')) {
+                    copySelectedList();
+                }
+            });
+
+            const driveSelect = document.getElementById('driveSelect');
+            if (driveSelect) {
+                driveSelect.addEventListener('change', updateStorageBar);
+            }
+        }
+    }
+
+    // Toggle Select/Deselect Game
+    function toggleSelectGame(card) {
+        const id = card.dataset.id;
+        const title = card.dataset.title;
+        const size = parseFloat(card.dataset.size) || 0;
+
+        if (selectedGames.has(id)) {
+            selectedGames.delete(id);
+            card.classList.remove('selected');
+            const btn = card.querySelector('.btn-play');
+            btn.innerHTML = '<i class="fa-solid fa-plus"></i> Select Game';
+        } else {
+            selectedGames.set(id, { id, title, size });
+            card.classList.add('selected');
+            const btn = card.querySelector('.btn-play');
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Selected';
+        }
+
+        renderCart();
+    }
+
+    // Clear All Selections
+    function clearAllSelections() {
+        selectedGames.clear();
+        document.querySelectorAll('.game-card.selected').forEach(card => {
+            card.classList.remove('selected');
+            const btn = card.querySelector('.btn-play');
+            btn.innerHTML = '<i class="fa-solid fa-plus"></i> Select Game';
+        });
+        renderCart();
+    }
+
+    // Render Cart Items & Update Storage Bar
+    function renderCart() {
+        const cartItemsList = document.getElementById('cartItems');
+        const copyBtn = document.getElementById('btnCopyList');
+        
+        if (!cartItemsList) return;
+
+        if (selectedGames.size === 0) {
+            cartItemsList.innerHTML = '<li class="empty-msg">No games selected yet</li>';
+            if (copyBtn) copyBtn.disabled = true;
+        } else {
+            cartItemsList.innerHTML = Array.from(selectedGames.values()).map(game => `
+                <li class="cart-item">
+                    <span class="cart-item-title"><i class="fa-solid fa-gamepad"></i> ${game.title}</span>
+                    <div class="cart-item-right">
+                        <span>${game.size} GB</span>
+                        <button class="btn-remove-item" data-id="${game.id}"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </li>
+            `).join('');
+            if (copyBtn) copyBtn.disabled = false;
+        }
+
+        updateStorageBar();
+    }
+
+    // Update Storage Bar & Efficiency
+    function updateStorageBar() {
+        let totalSize = 0;
+        selectedGames.forEach(game => totalSize += game.size);
+
+        const driveSelect = document.getElementById('driveSelect');
+        const driveCapacity = driveSelect ? parseFloat(driveSelect.value) : 512;
+        
+        const hddVal = document.getElementById('hddUsedVal');
+        if (hddVal) hddVal.textContent = `${totalSize.toFixed(2)} GB`;
+
+        const tetrisBar = document.getElementById('tetrisBar');
+        if (tetrisBar) {
+            const usedPercentage = Math.min((totalSize / driveCapacity) * 100, 100);
+            tetrisBar.innerHTML = `
+                <div class="tetris-block ${totalSize > driveCapacity ? 'tetris-overflow' : ''}" 
+                     style="width: ${usedPercentage}%; background: var(--accent-purple);"></div>
+            `;
+        }
+
+        const advice = document.getElementById('storageAdvice');
+        if (advice) {
+            if (totalSize === 0) {
+                advice.textContent = "Select games to analyze drive space efficiency.";
+            } else if (totalSize > driveCapacity) {
+                advice.textContent = `Warning: Drive limit exceeded by ${(totalSize - driveCapacity).toFixed(2)} GB!`;
+            } else {
+                const remaining = (driveCapacity - totalSize).toFixed(2);
+                advice.textContent = `Storage optimal! You have ${remaining} GB remaining.`;
+            }
+        }
+    }
+
+    // Modal Display for System Requirements
+    function showRequirementsModal(card) {
+        let modal = document.getElementById('reqsModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'reqsModal';
+            modal.className = 'modal-container';
+            document.body.appendChild(modal);
+        }
+
+        const title = card.dataset.title;
+        const cpu = card.dataset.cpu || 'N/A';
+        const gpu = card.dataset.gpu || 'N/A';
+        const ram = card.dataset.ram ? `${card.dataset.ram} GB` : 'N/A';
+        const vram = card.dataset.vram ? `${card.dataset.vram} GB` : 'N/A';
+
+        modal.innerHTML = `
+            <div class="modal-header">
+                <div class="modal-title"><i class="fa-solid fa-microchip"></i> ${title}</div>
+                <button class="btn-close-modal" onclick="closeRequirementsModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="reqs-grid">
+                <div class="req-card-row">
+                    <span class="req-card-label"><i class="fa-solid fa-processor"></i> CPU</span>
+                    <span class="req-card-value">${cpu}</span>
+                </div>
+                <div class="req-card-row">
+                    <span class="req-card-label"><i class="fa-solid fa-memory"></i> RAM</span>
+                    <span class="req-card-value">${ram}</span>
+                </div>
+                <div class="req-card-row">
+                    <span class="req-card-label"><i class="fa-solid fa-tv"></i> GPU</span>
+                    <span class="req-card-value">${gpu}</span>
+                </div>
+                <div class="req-card-row">
+                    <span class="req-card-label"><i class="fa-solid fa-sd-card"></i> VRAM</span>
+                    <span class="req-card-value">${vram}</span>
+                </div>
+            </div>
+        `;
+
+        modal.classList.add('active');
+    }
+
+    function closeRequirementsModal() {
+        const modal = document.getElementById('reqsModal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    // Search & Filter
+    function initFilterAndSort() {
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+        const genreChips = document.getElementById('genreChips');
+
+        if (searchInput) searchInput.addEventListener('input', filterGames);
+        if (sortSelect) sortSelect.addEventListener('change', filterGames);
+
+        if (genreChips) {
+            genreChips.addEventListener('click', (e) => {
+                if (e.target.classList.contains('chip')) {
+                    genreChips.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    e.target.classList.add('active');
+                    filterGames();
+                }
+            });
+        }
+    }
+
+    function filterGames() {
+        const query = document.getElementById('searchInput')?.value.toLowerCase() || '';
+        const sortValue = document.getElementById('sortSelect')?.value || 'name-asc';
+        const activeGenre = document.querySelector('.chip.active')?.dataset.genre || 'all';
+
+        const cards = Array.from(document.querySelectorAll('.game-card'));
+
+        cards.forEach(card => {
+            const title = card.dataset.title.toLowerCase();
+            const genre = card.dataset.genre;
+
+            const matchesSearch = title.includes(query);
+            const matchesGenre = activeGenre === 'all' || genre.toLowerCase().includes(activeGenre.toLowerCase());
+
+            if (matchesSearch && matchesGenre) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Sort Visible Cards
+        const grid = document.getElementById('gameGrid');
+        cards.sort((a, b) => {
+            if (sortValue === 'name-asc') {
+                return a.dataset.title.localeCompare(b.dataset.title);
+            } else if (sortValue === 'size-asc') {
+                return parseFloat(a.dataset.size) - parseFloat(b.dataset.size);
+            } else if (sortValue === 'size-desc') {
+                return parseFloat(b.dataset.size) - parseFloat(a.dataset.size);
+            }
+        });
+
+        cards.forEach(card => grid.appendChild(card));
+    }
+
+    // Copy Drawer List
+    function copySelectedList() {
+        if (selectedGames.size === 0) return;
+        const textToCopy = Array.from(selectedGames.values())
+            .map(g => `- ${g.title} (${g.size} GB)`)
+            .join('\n');
+
+        navigator.clipboard.writeText(`Selected Games:\n${textToCopy}`);
+        alert('Copied selected game list to clipboard!');
+    }
+
+    document.addEventListener('DOMContentLoaded', loadComponents);
+</script>
+    
 </body>
 </html>
