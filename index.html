@@ -419,12 +419,43 @@
         <iframe src="gamelist.html" class="gamelist-frame" id="gamelistFrame" title="Game List"></iframe>
     </main>
 
+    <!-- FLOATING CART WIDGET -->
+    <div class="cart-widget" id="cartWidget">
+        <div class="cart-header">
+            <span><i class="fa-solid fa-cart-shopping"></i> Selected Games (<span id="cartCount">0</span>)</span>
+            <div class="cart-header-actions">
+                <button class="btn-clear-all" id="btnClearCart">Clear</button>
+                <button class="cart-toggle-btn" id="btnToggleCart" aria-label="Toggle Cart">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+            </div>
+        </div>
+        <div class="cart-collapsible-content">
+            <ul class="cart-items" id="cartItemsList">
+                <!-- Cart items populate dynamically here -->
+            </ul>
+            <div class="cart-footer">
+                <button class="btn-copy-drawer" id="btnCopyList">
+                    <i class="fa-solid fa-copy"></i> Copy Selected Games List
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Adjust iframe height dynamically based on content inside gamelist.html
         window.addEventListener('message', function(e) {
             if (e.data && e.data.height) {
                 document.getElementById('gamelistFrame').style.height = e.data.height + 'px';
             }
+        });
+
+        // Basic toggle script for expanding/collapsing the cart widget
+        const cartWidget = document.getElementById('cartWidget');
+        const btnToggleCart = document.getElementById('btnToggleCart');
+
+        btnToggleCart.addEventListener('click', () => {
+            cartWidget.classList.toggle('collapsed');
         });
     </script>
 </body>
