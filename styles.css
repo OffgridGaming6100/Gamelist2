@@ -760,3 +760,42 @@ header {
 @keyframes fadeOut {
     to { opacity: 0; transform: translateY(-10px); }
 }
+
+/* --- PAGINATION STYLES --- */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: rgba(157, 78, 221, 0.2);
+    border-color: var(--accent-purple);
+    color: var(--accent-purple-light);
+}
+
+.page-btn.active {
+    background: var(--accent-purple);
+    border-color: var(--accent-purple-light);
+    color: #fff;
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
