@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offgrid Gaming | Instant. Offline. Play.</title>
+
+    <!-- External Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+    <!-- Notification Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Header Section -->
+    <header>
+        <img src="logo.png" alt="Offgrid Gaming Logo" class="site-logo">
+    </header>
+
+    <!-- Controls & Filters Navigation -->
+    <section class="controls" aria-label="Game Filter Controls">
+        <div class="filter-sort-bar">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="Search games...">
+            </div>
+            <select class="sort-dropdown" id="sortSelect" aria-label="Sort Games">
+                <option value="name-asc">Sort: A to Z</option>
+                <option value="size-asc">Sort: Size (Smallest)</option>
+                <option value="size-desc">Sort: Size (Largest)</option>
+            </select>
+        </div>
+
+        <nav class="genre-chips" id="genreChips" aria-label="Genre Filters">
+            <button class="chip active" data-genre="all">All Games</button>
+            <button class="chip" data-genre="RPG">RPG</button>
+            <button class="chip" data-genre="Open World">Open World</button>
+            <button class="chip" data-genre="Souls-like">Souls-like</button>
+            <button class="chip" data-genre="Racing">Racing</button>
+            <button class="chip" data-genre="Sports">Sports</button>
+            <button class="chip" data-genre="Action-Adventure">Action-Adventure</button>
+            <button class="chip" data-genre="Strategy">Strategy</button>
+            <button class="chip" data-genre="Simulation">Simulation</button>
+        </nav>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="container">
+        <div class="game-grid" id="gameGrid">
+            <!-- Dynamically populated by script.js -->
+        </div>
+    </main>
+
+    <!-- Floating System Requirements Modal -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-container" id="reqsModal" role="dialog" aria-labelledby="modalGameTitle" aria-modal="true">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalGameTitle">
+                <i class="fa-solid fa-microchip"></i> System Requirements
+            </h3>
+            <button class="btn-close-modal" id="btnCloseModal" aria-label="Close modal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="reqs-grid">
+            <div class="req-card-row">
+                <span class="req-card-label"><i class="fa-solid fa-memory"></i> RAM</span>
+                <span class="req-card-value" id="reqRam">-</span>
+            </div>
+            <div class="req-card-row">
+                <span class="req-card-label"><i class="fa-solid fa-tv"></i> VRAM</span>
+                <span class="req-card-value" id="reqVram">-</span>
+            </div>
+            <div class="req-card-row">
+                <span class="req-card-label"><i class="fa-solid fa-microchip"></i> CPU</span>
+                <span class="req-card-value" id="reqCpu">-</span>
+            </div>
+            <div class="req-card-row">
+                <span class="req-card-label"><i class="fa-solid fa-compact-disc"></i> GPU</span>
+                <span class="req-card-value" id="reqGpu">-</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Selection Drawer & Storage Calculator -->
+    <aside class="cart-widget" id="cartWidget" aria-label="Selected Games and Storage Calculator">
+        <div class="cart-header">
+            <div class="hdd-info-group">
+                <i class="fa-solid fa-hard-drive hdd-icon"></i>
+                <span>Selected: <span class="hdd-val-highlight" id="cartCount">0</span> games (<span class="hdd-val-highlight" id="cartTotalGb">0.00</span> GB)</span>
+            </div>
+            <div class="cart-header-actions">
+                <button class="btn-clear-all" id="btnClearAll">Clear</button>
+                <button class="cart-toggle-btn" id="cartToggleBtn" aria-label="Toggle Drawer">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="cart-collapsible-content">
+            <ul class="cart-items" id="cartItemsList">
+                <li class="empty-msg">No games selected yet.</li>
+            </ul>
+
+            <div class="hdd-storage-section">
+                <div class="hdd-label-row">
+                    <span>Storage Fit (Tetris Bar)</span>
+                    <label>
+                        Drive:
+                        <select class="target-drive-select" id="driveSelect">
+                            <option value="232.88">250 GB HDD (232.88 GB)</option>
+                            <option value="465.76">500 GB HDD (465.76 GB)</option>
+                            <option value="931.32">1 TB HDD (931.32 GB)</option>
+                            <option value="1862.65">2 TB HDD (1.82 TB)</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="tetris-bar-bg" id="tetrisBar"></div>
+                <div class="storage-advice-box" id="storageAdviceText">
+                    <i class="fa-solid fa-circle-info"></i> Select games to calculate required drive storage.
+                </div>
+            </div>
+
+            <div class="cart-footer">
+                <button class="btn-copy-drawer" id="btnCopyDrawer" disabled>
+                    <i class="fa-solid fa-copy"></i> Copy Game List
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- JavaScript Module -->
+    <script type="module" src="./script.js"></script>
+</body>
+</html>
