@@ -10,11 +10,14 @@ document.addEventListener("DOMContentLoaded", () => {
         specFilter: "all",
         sortOrder: "name-asc",
         targetDriveSizeGB: 232.88,
-        isWidgetCollapsed: false
+        isWidgetCollapsed: false,
+        currentPage: 1,
+        itemsPerPage: 20
     };
 
     // DOM Elements
     const gameGrid = document.getElementById("gameGrid");
+    const paginationContainer = document.getElementById("paginationContainer");
     const searchInput = document.getElementById("searchInput");
     const clearSearchBtn = document.getElementById("clearSearchBtn");
     const sizeFilterSelect = document.getElementById("sizeFilterSelect");
@@ -72,13 +75,13 @@ document.addEventListener("DOMContentLoaded", () => {
         return unit === "MB" ? val / 1024 : val;
     }
 
-    // Multi-Filter & Render Game Cards
+    // Multi-Filter & Render Game Cards with Pagination
     function renderGames() {
         let filtered = gamesData.filter(game => {
             // Search Query Filter
             const matchesSearch = game.title.toLowerCase().includes(state.searchQuery.toLowerCase());
 
-            // Genre Filter (supports partial matching like "Action" in "Action / Shooter")
+            // Genre Filter
             const matchesGenre = state.activeGenre === "all" || 
                 game.genre.toLowerCase().includes(state.activeGenre.toLowerCase());
 
@@ -112,12 +115,26 @@ document.addEventListener("DOMContentLoaded", () => {
             return 0;
         });
 
-        if (filtered.length === 0) {
+        const totalItems = filtered.length;
+        const totalPages = Math.ceil(totalItems / state.itemsPerPage) || 1;
+
+        // Ensure current page is within valid boundaries
+        if (state.currentPage > totalPages) {
+            state.currentPage = totalPages;
+        }
+
+        // Slice games for current page (20 items per page)
+        const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+        const pagedGames = filtered.slice(startIndex, startIndex + state.itemsPerPage);
+
+        if (pagedGames.length === 0) {
             gameGrid.innerHTML = `<div class="empty-msg" style="grid-column: 1/-1;">No games found matching your criteria.</div>`;
+            paginationContainer.innerHTML = "";
             return;
         }
 
-        gameGrid.innerHTML = filtered.map(game => {
+        // Render Game Cards
+        gameGrid.innerHTML = pagedGames.map(game => {
             const isSelected = state.selectedGameIds.has(game.id);
             return `
                 <div class="game-card ${isSelected ? 'selected' : ''}" data-id="${game.id}">
@@ -143,22 +160,74 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
             `;
         }).join("");
+
+        // Render Pagination Controls
+        renderPaginationControls(totalPages);
+    }
+
+    // Build Pagination Controls UI
+    function renderPaginationControls(totalPages) {
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = "";
+            return;
+        }
+
+        let html = `
+            <button class="page-btn" id="prevPageBtn" ${state.currentPage === 1 ? 'disabled' : ''}>
+                <i class="fa-solid fa-chevron-left"></i> Prev
+            </button>
+        `;
+
+        for (let i = 1; i <= totalPages; i++) {
+            html += `
+                <button class="page-btn ${i === state.currentPage ? 'active' : ''}" data-page="${i}">
+                    ${i}
+                </button>
+            `;
+        }
+
+        html += `
+            <button class="page-btn" id="nextPageBtn" ${state.currentPage === totalPages ? 'disabled' : ''}>
+                Next <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        `;
+
+        paginationContainer.innerHTML = html;
     }
 
     // Event Delegation & Setup
     function setupEventListeners() {
+        // Pagination Clicks
+        paginationContainer.addEventListener("click", (e) => {
+            const btn = e.target.closest(".page-btn");
+            if (!btn || btn.disabled) return;
+
+            if (btn.id === "prevPageBtn") {
+                state.currentPage--;
+            } else if (btn.id === "nextPageBtn") {
+                state.currentPage++;
+            } else if (btn.hasAttribute("data-page")) {
+                state.currentPage = parseInt(btn.getAttribute("data-page"), 10);
+            }
+
+            renderGames();
+            gameGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
         // Search Input Event
         searchInput.addEventListener("input", (e) => {
             state.searchQuery = e.target.value;
+            state.currentPage = 1; // Reset to page 1 on filter/search
             clearSearchBtn.style.display = state.searchQuery ? "flex" : "none";
             renderGames();
         });
 
-        // Clear Search Button Event (Touch & Click support)
+        // Clear Search Button Event
         const handleClearSearch = (e) => {
             e.preventDefault();
             searchInput.value = "";
             state.searchQuery = "";
+            state.currentPage = 1;
             clearSearchBtn.style.display = "none";
             searchInput.focus();
             renderGames();
@@ -171,6 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (sizeFilterSelect) {
             sizeFilterSelect.addEventListener("change", (e) => {
                 state.sizeFilter = e.target.value;
+                state.currentPage = 1;
                 renderGames();
             });
         }
@@ -179,6 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (specFilterSelect) {
             specFilterSelect.addEventListener("change", (e) => {
                 state.specFilter = e.target.value;
+                state.currentPage = 1;
                 renderGames();
             });
         }
@@ -195,6 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
                 e.target.classList.add("active");
                 state.activeGenre = e.target.getAttribute("data-genre");
+                state.currentPage = 1;
                 renderGames();
             }
         });
