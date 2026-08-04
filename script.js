@@ -8,9 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
         activeGenre: "all",
         sortOrder: "name-asc",
         targetDriveSizeGB: 232.88,
-        isWidgetCollapsed: false,
-        currentPage: 1,        // Current active page
-        itemsPerPage: 20       // Display 20 games per page
+        isWidgetCollapsed: false
     };
 
     // DOM Elements
@@ -31,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const reqsModal = document.getElementById("reqsModal");
     const modalOverlay = document.getElementById("modalOverlay");
     const toastContainer = document.getElementById("toastContainer");
-    const paginationControls = document.getElementById("paginationControls");
 
     // Initialize Application
     init();
@@ -81,18 +78,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (filtered.length === 0) {
             gameGrid.innerHTML = `<div class="empty-msg" style="grid-column: 1/-1;">No games found matching your criteria.</div>`;
-            if (paginationControls) paginationControls.innerHTML = "";
             return;
         }
 
-        // Pagination Logic
-        const totalPages = Math.ceil(filtered.length / state.itemsPerPage);
-        if (state.currentPage > totalPages) state.currentPage = 1;
-
-        const startIndex = (state.currentPage - 1) * state.itemsPerPage;
-        const pageGames = filtered.slice(startIndex, startIndex + state.itemsPerPage);
-
-        gameGrid.innerHTML = pageGames.map(game => {
+        gameGrid.innerHTML = filtered.map(game => {
             const isSelected = state.selectedGameIds.has(game.id);
             return `
                 <div class="game-card ${isSelected ? 'selected' : ''}" data-id="${game.id}">
@@ -118,38 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
             `;
         }).join("");
-
-        renderPaginationUI(totalPages);
-    }
-
-    // Render Pagination Controls
-    function renderPaginationUI(totalPages) {
-        if (!paginationControls || totalPages <= 1) {
-            if (paginationControls) paginationControls.innerHTML = "";
-            return;
-        }
-
-        let buttonsHtml = `
-            <button class="page-btn" data-page="${state.currentPage - 1}" ${state.currentPage === 1 ? "disabled" : ""}>
-                &laquo; Prev
-            </button>
-        `;
-
-        for (let i = 1; i <= totalPages; i++) {
-            buttonsHtml += `
-                <button class="page-btn ${i === state.currentPage ? 'active' : ''}" data-page="${i}">
-                    ${i}
-                </button>
-            `;
-        }
-
-        buttonsHtml += `
-            <button class="page-btn" data-page="${state.currentPage + 1}" ${state.currentPage === totalPages ? "disabled" : ""}>
-                Next &raquo;
-            </button>
-        `;
-
-        paginationControls.innerHTML = buttonsHtml;
     }
 
     // Event Delegation & Setup
@@ -157,14 +114,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // Search
         searchInput.addEventListener("input", (e) => {
             state.searchQuery = e.target.value;
-            state.currentPage = 1; // Reset to page 1 on filter change
             renderGames();
         });
 
         // Sort
         sortSelect.addEventListener("change", (e) => {
             state.sortOrder = e.target.value;
-            state.currentPage = 1;
             renderGames();
         });
 
@@ -174,25 +129,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
                 e.target.classList.add("active");
                 state.activeGenre = e.target.getAttribute("data-genre");
-                state.currentPage = 1;
                 renderGames();
             }
         });
-
-        // Pagination Click Handler
-        if (paginationControls) {
-            paginationControls.addEventListener("click", (e) => {
-                const pageBtn = e.target.closest(".page-btn");
-                if (pageBtn && !pageBtn.disabled) {
-                    const targetPage = parseInt(pageBtn.getAttribute("data-page"), 10);
-                    if (targetPage && targetPage !== state.currentPage) {
-                        state.currentPage = targetPage;
-                        renderGames();
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                }
-            });
-        }
 
         // Grid Button Actions
         gameGrid.addEventListener("click", (e) => {
@@ -230,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast("Selection cleared");
         });
 
-       // Copy Selection to Clipboard with Mobile Fallback
+        // Copy Selection to Clipboard (With Mobile & Insecure HTTP Fallback)
         btnCopyDrawer.addEventListener("click", () => {
             if (state.selectedGameIds.size === 0) return;
 
@@ -246,7 +185,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             text += `\nTotal Games Selected: ${selectedGames.length}\nTotal Estimated Storage: ${total.toFixed(2)} GB`;
 
-            // Try Clipboard API if secure context, otherwise use invisible textarea fallback
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => {
                     showToast("Copied game list to clipboard!");
@@ -256,37 +194,6 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 fallbackCopyText(text);
             }
-        });
-
-        // Mobile / Insecure HTTP Fallback
-        function fallbackCopyText(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            
-            // Fixed positioning so iOS doesn't scroll the view
-            textArea.style.top = "0";
-            textArea.style.left = "0";
-            textArea.style.position = "fixed";
-            textArea.style.opacity = "0";
-
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    showToast("Copied game list to clipboard!");
-                } else {
-                    showToast("Failed to copy list");
-                }
-            } catch (err) {
-                showToast("Failed to copy list");
-            }
-
-            document.body.removeChild(textArea);
-        }
-            });
         });
 
         // Remove Individual Item from Drawer
@@ -304,6 +211,35 @@ document.addEventListener("DOMContentLoaded", () => {
         // Close Modal Events
         document.getElementById("btnCloseModal").addEventListener("click", closeModal);
         modalOverlay.addEventListener("click", closeModal);
+    }
+
+    // Fallback Clipboard Function for Mobile Browsers / HTTP Contexts
+    function fallbackCopyText(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        
+        // Prevent scrolling to bottom on iOS
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+                showToast("Copied game list to clipboard!");
+            } else {
+                showToast("Failed to copy list");
+            }
+        } catch (err) {
+            showToast("Failed to copy list");
+        }
+
+        document.body.removeChild(textArea);
     }
 
     // Toggle Selection Logic
