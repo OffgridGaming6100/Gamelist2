@@ -77,7 +77,7 @@ header {
 
 .search-box input {
     width: 100%;
-    padding: 10px 14px 10px 40px;
+    padding: 10px 36px 10px 40px;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -92,12 +92,36 @@ header {
     box-shadow: 0 0 15px rgba(157, 78, 221, 0.35);
 }
 
-.search-box i {
+.search-box i.fa-magnifying-glass {
     position: absolute;
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-muted);
+}
+
+/* Clear Search Button Styles */
+.clear-search-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: color 0.2s, background 0.2s;
+}
+
+.clear-search-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .sort-dropdown {
@@ -759,43 +783,4 @@ header {
 
 @keyframes fadeOut {
     to { opacity: 0; transform: translateY(-10px); }
-}
-
-/* --- PAGINATION STYLES --- */
-.pagination-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    margin-top: 20px;
-    flex-wrap: wrap;
-}
-
-.page-btn {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    color: var(--text-main);
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.page-btn:hover:not(:disabled) {
-    background: rgba(157, 78, 221, 0.2);
-    border-color: var(--accent-purple);
-    color: var(--accent-purple-light);
-}
-
-.page-btn.active {
-    background: var(--accent-purple);
-    border-color: var(--accent-purple-light);
-    color: #fff;
-}
-
-.page-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
 }
