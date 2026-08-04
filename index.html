@@ -28,7 +28,30 @@
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="searchInput" placeholder="Search games...">
+                <!-- Clear Search Button -->
+                <button id="clearSearchBtn" class="clear-search-btn" aria-label="Clear search" style="display: none;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
+            
+            <!-- Storage Size Multi-Filter -->
+            <select class="sort-dropdown" id="sizeFilterSelect" aria-label="Filter by Storage Size">
+                <option value="all">All Sizes</option>
+                <option value="under-1">Under 1 GB</option>
+                <option value="1-5">1 GB – 5 GB</option>
+                <option value="5-10">5 GB – 10 GB</option>
+                <option value="over-10">Over 10 GB</option>
+            </select>
+
+            <!-- Hardware/RAM Tier Multi-Filter -->
+            <select class="sort-dropdown" id="specFilterSelect" aria-label="Filter by Hardware Spec Tier">
+                <option value="all">All Hardware Tiers</option>
+                <option value="low">Low Spec (≤ 2 GB RAM)</option>
+                <option value="mid">Mid Spec (4 GB – 8 GB RAM)</option>
+                <option value="high">High Spec (> 8 GB RAM)</option>
+            </select>
+
+            <!-- Sort Dropdown -->
             <select class="sort-dropdown" id="sortSelect" aria-label="Sort Games">
                 <option value="name-asc">Sort: A to Z</option>
                 <option value="size-asc">Sort: Size (Smallest)</option>
@@ -46,6 +69,8 @@
             <button class="chip" data-genre="Action-Adventure">Action-Adventure</button>
             <button class="chip" data-genre="Strategy">Strategy</button>
             <button class="chip" data-genre="Simulation">Simulation</button>
+            <button class="chip" data-genre="FPS">FPS</button>
+            <button class="chip" data-genre="Fighting">Fighting</button>
         </nav>
     </section>
 
@@ -54,9 +79,6 @@
         <div class="game-grid" id="gameGrid">
             <!-- Dynamically populated by script.js -->
         </div>
-
-        <!-- ADD THIS: Pagination Controls -->
-        <div class="pagination-container" id="paginationControls"></div>
     </main>
 
     <!-- Floating System Requirements Modal -->
