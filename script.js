@@ -230,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast("Selection cleared");
         });
 
-        // Copy Selection to Clipboard
+       // Copy Selection to Clipboard with Mobile Fallback
         btnCopyDrawer.addEventListener("click", () => {
             if (state.selectedGameIds.size === 0) return;
 
@@ -246,10 +246,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
             text += `\nTotal Games Selected: ${selectedGames.length}\nTotal Estimated Storage: ${total.toFixed(2)} GB`;
 
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("Copied game list to clipboard!");
-            }).catch(() => {
+            // Try Clipboard API if secure context, otherwise use invisible textarea fallback
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast("Copied game list to clipboard!");
+                }).catch(() => {
+                    fallbackCopyText(text);
+                });
+            } else {
+                fallbackCopyText(text);
+            }
+        });
+
+        // Mobile / Insecure HTTP Fallback
+        function fallbackCopyText(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // Fixed positioning so iOS doesn't scroll the view
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast("Copied game list to clipboard!");
+                } else {
+                    showToast("Failed to copy list");
+                }
+            } catch (err) {
                 showToast("Failed to copy list");
+            }
+
+            document.body.removeChild(textArea);
+        }
             });
         });
 
