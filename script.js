@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedGameIds: new Set(),
         searchQuery: "",
         activeGenre: "all",
+        sizeFilter: "all",
+        specFilter: "all",
         sortOrder: "name-asc",
         targetDriveSizeGB: 232.88,
         isWidgetCollapsed: false
@@ -14,6 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // DOM Elements
     const gameGrid = document.getElementById("gameGrid");
     const searchInput = document.getElementById("searchInput");
+    const clearSearchBtn = document.getElementById("clearSearchBtn");
+    const sizeFilterSelect = document.getElementById("sizeFilterSelect");
+    const specFilterSelect = document.getElementById("specFilterSelect");
     const sortSelect = document.getElementById("sortSelect");
     const genreChips = document.getElementById("genreChips");
     const cartWidget = document.getElementById("cartWidget");
@@ -56,12 +61,43 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${game.size.toFixed(2)} GB`;
     }
 
-    // Render Game Cards to Grid
+    // Helper: Parse RAM in GB from system requirements string
+    function parseRamInGB(ramStr) {
+        if (!ramStr) return 0;
+        const str = ramStr.toUpperCase();
+        const match = str.match(/(\d+(\.\d+)?)\s*(GB|MB)/);
+        if (!match) return 0;
+        const val = parseFloat(match[1]);
+        const unit = match[3];
+        return unit === "MB" ? val / 1024 : val;
+    }
+
+    // Multi-Filter & Render Game Cards
     function renderGames() {
         let filtered = gamesData.filter(game => {
+            // Search Query Filter
             const matchesSearch = game.title.toLowerCase().includes(state.searchQuery.toLowerCase());
-            const matchesGenre = state.activeGenre === "all" || game.genre.toLowerCase() === state.activeGenre.toLowerCase();
-            return matchesSearch && matchesGenre;
+
+            // Genre Filter (supports partial matching like "Action" in "Action / Shooter")
+            const matchesGenre = state.activeGenre === "all" || 
+                game.genre.toLowerCase().includes(state.activeGenre.toLowerCase());
+
+            // Storage Size Filter
+            const sizeGB = getGameSizeInGB(game);
+            let matchesSize = true;
+            if (state.sizeFilter === "under-1") matchesSize = sizeGB < 1;
+            else if (state.sizeFilter === "1-5") matchesSize = sizeGB >= 1 && sizeGB <= 5;
+            else if (state.sizeFilter === "5-10") matchesSize = sizeGB > 5 && sizeGB <= 10;
+            else if (state.sizeFilter === "over-10") matchesSize = sizeGB > 10;
+
+            // Hardware Spec / RAM Tier Filter
+            const ramGB = parseRamInGB(game.ram);
+            let matchesSpec = true;
+            if (state.specFilter === "low") matchesSpec = ramGB <= 2;
+            else if (state.specFilter === "mid") matchesSpec = ramGB > 2 && ramGB <= 8;
+            else if (state.specFilter === "high") matchesSpec = ramGB > 8;
+
+            return matchesSearch && matchesGenre && matchesSize && matchesSpec;
         });
 
         // Sorting
@@ -111,13 +147,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Event Delegation & Setup
     function setupEventListeners() {
-        // Search
+        // Search Input Event
         searchInput.addEventListener("input", (e) => {
             state.searchQuery = e.target.value;
+            clearSearchBtn.style.display = state.searchQuery ? "flex" : "none";
             renderGames();
         });
 
-        // Sort
+        // Clear Search Button Event (Touch & Click support)
+        const handleClearSearch = (e) => {
+            e.preventDefault();
+            searchInput.value = "";
+            state.searchQuery = "";
+            clearSearchBtn.style.display = "none";
+            searchInput.focus();
+            renderGames();
+        };
+
+        clearSearchBtn.addEventListener("click", handleClearSearch);
+        clearSearchBtn.addEventListener("touchstart", handleClearSearch, { passive: false });
+
+        // Storage Size Filter Event
+        if (sizeFilterSelect) {
+            sizeFilterSelect.addEventListener("change", (e) => {
+                state.sizeFilter = e.target.value;
+                renderGames();
+            });
+        }
+
+        // Spec / Hardware Tier Filter Event
+        if (specFilterSelect) {
+            specFilterSelect.addEventListener("change", (e) => {
+                state.specFilter = e.target.value;
+                renderGames();
+            });
+        }
+
+        // Sort Event
         sortSelect.addEventListener("change", (e) => {
             state.sortOrder = e.target.value;
             renderGames();
@@ -169,7 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast("Selection cleared");
         });
 
-        // Copy Selection to Clipboard (With Mobile & Insecure HTTP Fallback)
+        // Copy Selection to Clipboard
         btnCopyDrawer.addEventListener("click", () => {
             if (state.selectedGameIds.size === 0) return;
 
@@ -213,12 +279,11 @@ document.addEventListener("DOMContentLoaded", () => {
         modalOverlay.addEventListener("click", closeModal);
     }
 
-    // Fallback Clipboard Function for Mobile Browsers / HTTP Contexts
+    // Fallback Clipboard Function
     function fallbackCopyText(text) {
         const textArea = document.createElement("textarea");
         textArea.value = text;
         
-        // Prevent scrolling to bottom on iOS
         textArea.style.top = "0";
         textArea.style.left = "0";
         textArea.style.position = "fixed";
