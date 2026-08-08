@@ -37,6 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const reqsModal = document.getElementById("reqsModal");
     const modalOverlay = document.getElementById("modalOverlay");
     const toastContainer = document.getElementById("toastContainer");
+    const normalize = (str) => str.toLowerCase().replace(/['’]/g, "");
+    const matchesSearch = normalize(game.title).includes(normalize(state.searchQuery));
 
     // Initialize Application
     init();
