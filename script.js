@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
         activeGenre: "all",
         sizeFilter: "all",
         specFilter: "all",
-        sortOrder: "name-asc",
+        sortOrder: "name-asc", // Defaults to A to Z sorting
         targetDriveSizeGB: 232.88,
         isWidgetCollapsed: false,
         currentPage: 1,
@@ -103,10 +103,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return matchesSearch && matchesGenre && matchesSize && matchesSpec;
         });
 
-        // Sorting
+        // =========================================================
+        // AUTOMATIC SORTING CODE (Runs right after filtering)
+        // =========================================================
         filtered.sort((a, b) => {
             if (state.sortOrder === "name-asc") {
-                return a.title.localeCompare(b.title);
+                return a.title.localeCompare(b.title); // Alphabetical A-Z
             } else if (state.sortOrder === "size-asc") {
                 return getGameSizeInGB(a) - getGameSizeInGB(b);
             } else if (state.sortOrder === "size-desc") {
