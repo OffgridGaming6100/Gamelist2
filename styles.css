@@ -836,3 +836,45 @@ header {
 @keyframes fadeOut {
     to { opacity: 0; transform: translateY(-10px); }
 }
+
+/* --- DECORATIVE SIDE PANELS --- */
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.15;
+    transition: opacity 0.3s ease;
+}
+
+/* Left Accent Strip */
+body::before {
+    left: 0;
+    background: 
+        linear-gradient(180deg, var(--accent-purple) 0%, transparent 40%, var(--accent-orange) 100%),
+        repeating-linear-gradient(0deg, transparent, transparent 8px, var(--accent-purple) 8px, var(--accent-purple) 10px);
+    border-right: 1px solid var(--border-color);
+    box-shadow: 15px 0 30px rgba(157, 78, 221, 0.2);
+}
+
+/* Right Accent Strip */
+body::after {
+    right: 0;
+    background: 
+        linear-gradient(180deg, var(--accent-orange) 0%, transparent 40%, var(--accent-purple) 100%),
+        repeating-linear-gradient(0deg, transparent, transparent 8px, var(--accent-orange) 8px, var(--accent-orange) 10px);
+    border-left: 1px solid var(--border-color);
+    box-shadow: -15px 0 30px rgba(255, 106, 0, 0.2);
+}
+
+/* Hide side accents on smaller displays to keep mobile clean */
+@media (max-width: 1300px) {
+    body::before,
+    body::after {
+        display: none;
+    }
+}
