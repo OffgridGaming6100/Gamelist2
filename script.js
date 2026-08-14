@@ -304,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (state.selectedGameIds.size === 0) return;
 
             const selectedGames = gamesData.filter(g => state.selectedGameIds.has(g.id));
-            let text = "🎮 Selected Games:\n\n";
+            let text = "🎮Selected Games🎮\n\n";
             let total = 0;
 
             selectedGames.forEach((g, idx) => {
