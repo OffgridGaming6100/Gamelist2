@@ -206,4 +206,3 @@ export const gamesData = [
     { id: 205, title: "RollerCoaster Tycoon 3 Complete Edition", genre: "Simulation / Strategy", size: 1.32, sizeUnit: "GB", ram: "2 GB", vram: "256 MB", cpu: "Intel or AMD Dual Core", gpu: "NVIDIA GeForce 8800 GTX / AMD Radeon HD 5670", imgUrl: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1368820/header.jpg" },
     { id: 206, title: "Yaiba - Ninja Gaiden Z", genre: "Action / Hack and Slash", size: 5.86, sizeUnit: "GB", ram: "3 GB", vram: "512 MB", cpu: "Intel Core 2 Quad / AMD Phenom II X4", gpu: "NVIDIA GeForce GTS 450 / AMD Radeon HD 5770", imgUrl: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/252230/header.jpg" }
 ];
-];
